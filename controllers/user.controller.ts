@@ -48,7 +48,7 @@ export default class UserController {
     if (body.phone == false && body.email == false)
       return errRes(res, `Please provide an email or a phone number`);
     email = await User.findOne({
-      where: { email: body.email },
+      where: { email: body.email, active:true },
     });
     if (email) return errRes(res, `This email already exists`);
     password = await hashMyPassword(body.password);
