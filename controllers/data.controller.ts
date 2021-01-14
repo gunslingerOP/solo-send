@@ -3,6 +3,7 @@ import { Contact } from "../src/entity/contact"
 import { ContactsList } from "../src/entity/contactsList"
 import { EmailTemplate } from "../src/entity/emailTemplate"
 import { SentEmail } from "../src/entity/sentEmail"
+import { Subscription } from "../src/entity/subscription"
 
 export default class DataController{
     static getContacts=async(req,res)=>{
@@ -89,6 +90,24 @@ export default class DataController{
       
 
         return okRes(res,template)
+      
+      
+      }
+
+      static getSubscription=async(req, res)=>{
+        let subscription
+        let user= req.user
+
+    
+        subscription = await Subscription.find({
+    
+            where:{user, expired:false, cancelled:false},
+                 
+        })
+        if(!subscription) return errRes(res,`No subscription found`)
+      
+
+        return okRes(res,subscription)
       
       
       }

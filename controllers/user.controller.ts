@@ -601,7 +601,7 @@ export default class UserController {
 
     return okRes(
       res,
-{      data:`Congragulations! You've successfully subscribed to our ${plan.name} plan!`, subscription
+{      data:`Congragulations! You've successfully subscribed to our ${plan.name} plan!`, user
 }    );
   };
 

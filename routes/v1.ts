@@ -53,6 +53,7 @@ router.get("/emails", userAuth, DataController.sentEmails)
 router.get("/emails", userAuth, DataController.sentEmails)
 router.get("/emails", userAuth, DataController.sentEmails)
 router.get("/template", userAuth, DataController.getTemplates)
+router.get("/subscription", userAuth, DataController.getSubscription)
 
 
 export default router
