@@ -17,6 +17,7 @@ import { EmailPurchases } from "./emailPurchases";
 import { EmailTemplate } from "./emailTemplate";
 import { Otp } from "./otp";
 import { Plan } from "./plan";
+import { ScheduledMail } from "./scheduled";
 import { SentEmail } from "./sentEmail";
 import { Subscription } from "./subscription";
   
@@ -54,8 +55,23 @@ import { Subscription } from "./subscription";
     planType: number;
 
     @Column()
+    planId: number;
+
+    @Column()
     emailsLeft: number;
+
+    @Column({nullable:true})
+    emailsSentToday: number;
+
+    @Column({nullable:true})
+    dailyLimit: number;
+
+    @Column({nullable:true})
+    cancellations: number;
     
+
+    @Column({nullable:true})
+    exceededDailyLimit: boolean;
   
     //-----------------------RELATIONS-----------------------
   
@@ -67,6 +83,9 @@ import { Subscription } from "./subscription";
 
     @OneToMany((type)=>Otp, (Otp)=>Otp.user)
     otp:Otp[]
+
+    @OneToMany((type)=>ScheduledMail, (mail)=>mail.user)
+    scheduledMail:ScheduledMail[]
 
     @OneToMany((type)=>Contact, (contact)=>contact.user)
     contact:Contact[]
@@ -80,8 +99,7 @@ import { Subscription } from "./subscription";
     @OneToMany((type)=>Subscription, (subscription)=>subscription.user)
     subscription:Subscription[]
 
-    @ManyToOne((type)=>Plan, (Plan)=>Plan.users)
-    plan:Plan
+
 
    
   }

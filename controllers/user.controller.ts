@@ -15,9 +15,13 @@ import {
 import validator from "../helpers/validate";
 import { Contact } from "../src/entity/contact";
 import { ContactsList } from "../src/entity/contactsList";
+import { EmailOffer } from "../src/entity/emailOffer";
+import { EmailPurchases } from "../src/entity/emailPurchases";
+import { EmailTemplate } from "../src/entity/emailTemplate";
 import { Otp } from "../src/entity/otp";
 import { Plan } from "../src/entity/plan";
 import { SettingsChange } from "../src/entity/settingsChange";
+import { Subscription } from "../src/entity/subscription";
 import { User } from "../src/entity/User";
 
 const sgMail = require("@sendgrid/mail");
@@ -33,6 +37,7 @@ export default class UserController {
     let expiry = minutesNow + 4;
     let otp;
     let link;
+
     let password;
     let plan;
     let secretCode;
@@ -52,7 +57,7 @@ export default class UserController {
     });
     user = await User.create({
       ...body,
-      plan,
+      planId: plan.id,
       password,
       planType: plan.type,
       verified: false,
@@ -479,8 +484,9 @@ export default class UserController {
 
     list = await ContactsList.findOne({ where: { user, id: listId } });
     if (!list) return errRes(res, `No list found`);
-    for (let x=0; x< body.contact.length; x++) {
-      if (!body.contact[x].email) return errRes(res, `Contact must have an email`);
+    for (let x = 0; x < body.contact.length; x++) {
+      if (!body.contact[x].email)
+        return errRes(res, `Contact must have an email`);
       contact = await Contact.findOne({
         where: { contactList: list, email: body.contact[x].email },
       });
@@ -489,15 +495,15 @@ export default class UserController {
           res,
           `The contact with the email of ${body.contact[x].email} already exists in this list`
         );
-      
-        for (let i = x + 1; i < body.contact.length; i++) {
-            let dup = body.contact[i].email;
-            if (dup === body.contact[x].email)
-              return errRes(
-                res,
-                `Emails must be unique, ${dup} already exists in the file you provided`
-              );
-          }
+
+      for (let i = x + 1; i < body.contact.length; i++) {
+        let dup = body.contact[i].email;
+        if (dup === body.contact[x].email)
+          return errRes(
+            res,
+            `Emails must be unique, ${dup} already exists in the file you provided`
+          );
+      }
       contact = await Contact.create({
         contactList: list,
         active: true,
@@ -522,6 +528,8 @@ export default class UserController {
     if (!list) return errRes(res, `No list found`);
 
     list.active = false;
+
+    
     await list.save();
 
     return okRes(res, `List deleted successfully`);
@@ -544,4 +552,155 @@ export default class UserController {
 
     return okRes(res, `Contact deleted successfully`);
   };
+
+  static subscribe = async (req, res) => {
+    let user = req.user;
+    let desiredPlan = req.params.planId;
+    if (!desiredPlan)
+    return errRes(
+        res,
+        `Please provide an id for the plan you'd like to subscribe to`
+        );
+        let nowInMillis = Date.now();
+        let today = Math.floor(nowInMillis / 1000 / 60 / 60 / 24);
+        let expiry = today + 30;
+        let plan;
+        let existingSub;
+        let subscription;
+        plan = await Plan.findOne({ where: { id: desiredPlan, active: true } });
+        if (!plan) return errRes(res, `No plan found`);
+
+    existingSub = await Subscription.findOne({
+      where: { user, expired: false, cancelled: false },
+    });
+
+    if (existingSub) {
+      if (user.planType != 0)
+        return errRes(
+          res,
+          `You already are subscribed to our ${plan.name} plan, please cancel it or wait it to end to change your subscription`
+        );
+    }
+
+    //Do the transaction and charge the user then create their subscription
+    subscription = await Subscription.create({
+      user,
+      expiry,
+      planId: desiredPlan,
+      expired: false,
+      cancelled: false,
+    }).save();
+    user.dailyLimit = plan.emailsAllowed * 0.1;
+    user.emailsLeft += plan.emailsAllowed;
+    user.planType = plan.type
+    user.planId = plan.id
+    await user.save();
+
+    return okRes(
+      res,
+{      data:`Congragulations! You've successfully subscribed to our ${plan.name} plan!`, subscription
+}    );
+  };
+
+  static unsubscribe = async (req, res) => {
+    let subscription;
+    let plan
+    let nowInMillis = Date.now();
+    let today = Math.floor(nowInMillis / 1000 / 60 / 60 / 24);
+    let user = req.user;
+    subscription = await Subscription.findOne({
+      where: { user, expired: false, cancelled: false },
+    });
+    if (!subscription)
+      return errRes(res, `You're not subscribed to any plan at the moment`);
+
+    if (subscription.expiry - today < 27)
+      return errRes(
+        res,
+        `It's too late to get a refund for you subscription now!`
+      );
+
+      plan = await Plan.findOne({where:{id:subscription.planId}})
+      if(!plan) return errRes(res,`No plan found`)
+    if (user.emailsLeft < plan.emailsAllowed)
+      return errRes(
+        res,
+        `You've used some of the plan's emails, buy more email sends until you have ${subscription.emailsAllowed} sends and then you may get a refund`
+      );
+
+    //refund the user's money and cancel their subscription
+    subscription.cancelled = true;
+    user.planType = 0
+    user.dailyLimit = 100 * 0.1;
+    user.emailsLeft = user.emailsLeft- plan.emailsAllowed
+    user.planId = 1
+    await user.save()
+    await subscription.save();
+
+    return okRes(res,`Your ${plan.name} subscription has been cancelled successfully and you're now on a free plan`)
+  };
+
+
+  static buyEmails=async(req, res)=>{
+      let offerId = req.params.offerId
+      let emailPurchases
+      let amountToBuy= req.params.amount
+      let user = req.user
+      let offer
+      offer = await EmailOffer.findOne({where:{id:offerId}})
+      if(!offer) return errRes(res,`No package found`)
+        emailPurchases = await EmailPurchases.create({
+            amountPurchased:amountToBuy*offer.emailAmount,
+            user,
+            price:amountToBuy*offer.price,
+            offer:offer
+        }).save()
+      //take the user's money and add the email amount to their account
+      user.emailsLeft +=amountToBuy*offer.emailAmount
+      
+      
+      
+      
+      await user.save() 
+
+      return okRes(res,{data:`You've successfully purchased ${amountToBuy*offer.emailAmount} email sends and we've charged you with $${amountToBuy*offer.price}`, emailPurchases})
+  }
+
+static makeTemplate=async(req, res)=>{
+  let body = req.body
+  let template
+  let user= req.user
+  let notValid = validate(body, validator.emailTemplate());
+  if (notValid) return errRes(res, notValid);
+
+  template = await EmailTemplate.create({
+    ...body,
+    user,
+    active:true
+  })
+  template.save()
+
+  return okRes(res,template)
+
+
+}
+
+static deleteTemplate=async(req, res)=>{
+  let body = req.body
+  let template
+  let templateId = req.params.templateId
+  let user= req.user
+  if(!templateId) return errRes(res, `Please provide a template id`)
+  template = await EmailTemplate.findOne({
+    where:{user, id:templateId, active:true}
+  })
+  if(!template) return errRes(res,`No template found`)
+
+  template.active = false
+  await template.save()
+  return okRes(res,`Template deleted successfully`)
+
+
+}
+
 }

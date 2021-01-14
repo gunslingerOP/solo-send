@@ -73,7 +73,7 @@ const emailVerifyOtp = async (email, secretCode, action, link)=>{
   })();
 }
 
-const sendMail = async (email,body, subject)=>{
+const sendMail = async (email,body, subject, req, res)=>{
 
 
   const msg = {
@@ -84,17 +84,16 @@ const sendMail = async (email,body, subject)=>{
     html: `${body}`,
   };
 
-  (async () => {
     try {
       await sgMail.send(msg);
     } catch (error) {
-      console.error(error);
-
+      
       if (error.response) {
-        console.error(error.response.body);
+        return errRes(res,error.response.body.errors[0].message)
       }
+return errRes(res, error)
     }
-  })();
-}
+  };
+
 
 export { okRes, errRes,emailVerifyOtp, getOTP, hashMyPassword, comparePassword, sendSMS, paginate, sendMail };

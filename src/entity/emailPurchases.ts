@@ -1,5 +1,5 @@
 import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToOne} from "typeorm";
-import { emailOffer } from "./emailOffer";
+import { EmailOffer } from "./emailOffer";
 import { User } from "./User";
 
 @Entity("EmailPurchases")
@@ -20,10 +20,7 @@ export class EmailPurchases extends BaseEntity {
     amountPurchased: number;
 
     @Column()
-    expiry: number;
-
-    @Column()
-    price: string;
+    price: number;
 
 
 
@@ -31,8 +28,7 @@ export class EmailPurchases extends BaseEntity {
     @ManyToOne((type)=>User, (User)=>User.emailPurchases)
     user: User
 
-    @OneToOne(() => emailOffer)
-    @JoinColumn()
-    emailOffer: emailOffer;
+    @ManyToOne((type)=>EmailOffer,(offer) => offer.emailPurchases)
+    offer: EmailOffer;
 
 }

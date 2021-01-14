@@ -4,7 +4,7 @@ import { ContactsList } from "./contactsList";
 import { User } from "./User";
 
 @Entity()
-export class SentEmail extends BaseEntity {
+export class ScheduledMail extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -18,12 +18,6 @@ export class SentEmail extends BaseEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Column()
-    body: string;
-
-    @Column()
-    subject: string;
-
     @Column({nullable:true})
     scheduledAt: Date;
 
@@ -35,13 +29,9 @@ export class SentEmail extends BaseEntity {
 
 
 
-    @ManyToOne((type)=>User, (User)=>User.sentEmail)
+    @ManyToOne((type)=>User, (User)=>User.scheduledMail)
     user:User
 
-    @ManyToOne((type)=>ContactsList, (contactsList)=>contactsList.sentEmail)
-    contactsList:ContactsList
 
-    @ManyToOne((type)=>Contact, (contact)=>contact.sentEmail)
-    contact:Contact
 
 }

@@ -1,7 +1,8 @@
-import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, OneToMany} from "typeorm";
+import { EmailPurchases } from "./emailPurchases";
 
 @Entity()
-export class emailOffer extends BaseEntity {
+export class EmailOffer extends BaseEntity {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -31,5 +32,10 @@ export class emailOffer extends BaseEntity {
 
     @Column()
     discountPrice: string;
+    purchases: any;
 
+    
+    @OneToMany((type)=>EmailPurchases, (emailPurchases)=>emailPurchases.offer)
+    emailPurchases:EmailPurchases[]
 }
+

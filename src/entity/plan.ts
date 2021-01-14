@@ -20,8 +20,8 @@ export class Plan extends BaseEntity {
     @Column()
     name: string;
 
-    @Column()
-    type: string;
+    @Column({nullable:true})
+    type: number;
 
     @Column()
     price: string;
@@ -41,10 +41,8 @@ export class Plan extends BaseEntity {
     @Column()
     active: boolean;
 
-    @OneToMany((type)=>Subscription, (subscription)=>subscription.plan)
-    subscription: Subscription[]
+ 
 
-    @OneToMany((type)=>User, (User)=>User.plan)
-    users: User[]
+
 
 }

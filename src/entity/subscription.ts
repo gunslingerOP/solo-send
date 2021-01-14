@@ -23,10 +23,13 @@ export class Subscription extends BaseEntity {
     @Column()
     expired:boolean;
 
-    @ManyToOne((type)=>Plan, (plan)=>plan.subscription)
-    plan: Plan[]
+    @Column({nullable:true})
+    cancelled:boolean;
+
+    @Column()
+    planId: number
 
 
     @ManyToOne((type)=>User, (user)=>user.subscription)
-    user: User[]
+    user: User
 }

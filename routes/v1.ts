@@ -6,6 +6,7 @@ import UserController from "../controllers/user.controller";
 import otpVerification from "../middleware/verification";
 import userAuth from "../middleware/userAuth";
 import EmailsController from "../controllers/emails.controller";
+import DataController from "../controllers/data.controller";
 
 
 
@@ -34,12 +35,24 @@ router.delete("/list/delete/:listId",userAuth, UserController.deleteList)
 
 router.post("/send", userAuth, EmailsController.sendEmail)
 router.post("/send/scheduled", userAuth, EmailsController.sendScheduledEmail)
+router.delete("/scheduled/cancel", userAuth, EmailsController.cancelScheduledEmail)
+
+router.post("/subscribe/:planId", userAuth, UserController.subscribe)
+router.delete("/unsubscribe", userAuth, UserController.unsubscribe)
+router.post("/buy/:offerId/:amount", userAuth, UserController.buyEmails)
+
+router.post("/template", userAuth, UserController.makeTemplate)
+router.delete("/template/:templateId", userAuth, UserController.deleteTemplate)
 
 
+//get requests
 
-
-
-
+router.get("/contacts", userAuth, DataController.getContacts)
+router.get("/lists", userAuth, DataController.getLists)
+router.get("/emails", userAuth, DataController.sentEmails)
+router.get("/emails", userAuth, DataController.sentEmails)
+router.get("/emails", userAuth, DataController.sentEmails)
+router.get("/template", userAuth, DataController.getTemplates)
 
 
 export default router

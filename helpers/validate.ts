@@ -131,7 +131,30 @@ static sendScheduledMail = (must = true)=>({
     timeStamp:{
       presence:must,
       type:"string"
+    },
+    name:{
+      presence:must,
+      type:"string"
     }
 })
     
+
+static cancelTask = (must = true)=>({
+  taskName: {
+      presence: must,
+      type: "string",
+    }
+})
+
+static emailTemplate = (must = true)=>({
+  
+    title: {
+      presence: must,
+      type: "string",
+    },
+    body: {
+      presence: must,
+      type: "string",
+    }
+})
 }
