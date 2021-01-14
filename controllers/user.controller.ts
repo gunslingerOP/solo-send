@@ -55,6 +55,7 @@ export default class UserController {
     plan = await Plan.findOne({
       where: { price: "free" },
     });
+    if(!plan) return errRes(res,`No free plan found`)
     user = await User.create({
       ...body,
       planId: plan.id,
@@ -78,7 +79,7 @@ export default class UserController {
     await otp.save();
     if (user.email) {
       email = user.email;
-      link = `http://localhost:3000/v1/verify?token=${token}`;
+      link = `https://solo-send.herokuapp.com/v1/verify?token=${token}`;
       emailVerifyOtp(email, secretCode, `Registration`, link);
       return okRes(res, {
         data: `An email with the verification link has been sent to your address`,
@@ -159,7 +160,7 @@ export default class UserController {
     token = jwt.sign({ id: user.id, otp: true }, config.jwtSecret);
 
     email = user.email;
-    let link = `https://solo-bolt.herokuapp.com/v1/login/otp/${user.id}?token=${token}`;
+    let link = `https://solo-send.herokuapp.com/v1/login/otp/${user.id}?token=${token}`;
     emailVerifyOtp(email, secretCode, `login`, link);
 
     return okRes(
@@ -198,7 +199,7 @@ export default class UserController {
         user,
       });
       await otp.save();
-      let link = `https://solo-bolt.herokuapp.com/v1/email/verify`;
+      let link = `https://solo-send.herokuapp.com/v1/email/verify`;
       emailVerifyOtp(body.newEmail, secretCode, `change your email`, link);
 
       return errRes(
@@ -247,7 +248,7 @@ export default class UserController {
       config.jwtSecret
     );
 
-    let link = `https://solo-bolt.herokuapp.com/v1/email/verify?token=${token}`;
+    let link = `https://solo-send.herokuapp.com/v1/email/verify?token=${token}`;
     await emailVerifyOtp(body.newEmail, secretCode, `reset your email`, link);
     okRes(res, `An email reset OTP has been sent to your new email address`);
   };
@@ -301,7 +302,7 @@ export default class UserController {
         { id: user.id, newEmail: payload.newEmail, otp: true },
         config.jwtSecret
       );
-      let link = `https://solo-bolt.herokuapp.com/v1/email/verify?token=${token}`;
+      let link = `https://solo-send.herokuapp.com/v1/email/verify?token=${token}`;
       emailVerifyOtp(body.newEmail, secretCode, `changing your email`, link);
       return errRes(
         res,
@@ -339,7 +340,7 @@ export default class UserController {
     });
     await otp.save();
     token = jwt.sign({ id: user.id, otp: true }, config.jwtSecret);
-    let link = `https://solo-bolt.herokuapp.com/v1/password/verify?token=${token}`;
+    let link = `https://solo-send.herokuapp.com/v1/password/verify?token=${token}`;
     emailVerifyOtp(user.email, secretCode, `reset your password`, link);
     okRes(res, `A password reset OTP has been sent to your email address`);
   };
@@ -377,7 +378,7 @@ export default class UserController {
       });
       await otp.save();
       token = jwt.sign({ id: user.id, otp: true }, config.jwtSecret);
-      let link = `https://solo-bolt.herokuapp.com/v1/password/verify?token=${token}`;
+      let link = `https://solo-send.herokuapp.com/v1/password/verify?token=${token}`;
       emailVerifyOtp(user.email, secretCode, `change your password`, link);
       return errRes(
         res,
