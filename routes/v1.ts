@@ -17,7 +17,7 @@ import DataController from "../controllers/data.controller";
 router.post("/register",apiLimiter, UserController.register)
 router.post("/verify",otpVerification, apiLimiter, UserController.verify)
 router.post("/login", UserController.login)
-router.post("/login/otp/:userId",otpVerification, otpVerification, UserController.loginOtp)
+router.post("/login/otp/:userId",otpVerification, UserController.loginOtp)
 
 router.put("/email/change",apiLimiter, userAuth, UserController.changeEmail)
 router.put("/email/verify",apiLimiter,otpVerification, userAuth, UserController.verifyEmail)

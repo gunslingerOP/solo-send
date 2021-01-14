@@ -406,7 +406,9 @@ export default class UserController {
       return errRes(res, `Please provide a contact to add`);
     for (let obj of body.contact) {
       if (!obj.email) return errRes(res, `Contact must have an email`);
-      contact = await Contact.findOne({ where: { user, email: obj.email } });
+      contact = await Contact.findOne({ where: { user, email: obj.email, active:true } });
+      console.log(contact);
+      
       if (contact)
         return errRes(res, `This contact with ${obj.email} already exists`);
       contact = await Contact.create({
@@ -592,7 +594,7 @@ export default class UserController {
       cancelled: false,
     }).save();
     user.dailyLimit = plan.emailsAllowed * 0.1;
-    user.emailsLeft += plan.emailsAllowed;
+    user.emailsLeft =user.emailsLeft + plan.emailsAllowed;
     user.planType = plan.type
     user.planId = plan.id
     await user.save();
