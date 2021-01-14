@@ -116,7 +116,7 @@ export default class UserController {
     await otp.save();
     user.verified = true;
     await user.save();
-    return okRes(res, `Successfully verified`, user);
+    return okRes(res, {data:`Successfully verified`,user});
   };
 
   static login = async (req, res) => {
