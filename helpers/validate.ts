@@ -96,7 +96,6 @@ static deleteContactFromList = (must = true)=>({
 
 static sendMail = (must = true)=>({
   emails: {
-      presence: must,
       type: "array",
     },
     subject: {

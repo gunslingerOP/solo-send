@@ -35,6 +35,7 @@ export default class EmailsController {
     let emails = body.emails;
     let listIds = body.listIds;
     let contactIds = body.contactIds;
+    if(emails==null&&listIds==null&&contactIds==null) return errRes(res, `Please specify emails to send to!`)
     let sentEmail;
     if (user.exceededDailyLimit)
       return errRes(res, `You've exceeded your daily sending limit!`);
@@ -170,6 +171,7 @@ export default class EmailsController {
     let emails = body.emails;
     let listIds = body.listIds;
     let contactIds = body.contactIds;
+    if(emails==null&&listIds==null&&contactIds==null) return errRes(res, `Please specify emails to send to!`)
     let sentEmail;
     let notValid = validate(body, validator.sendScheduledMail());
     if (notValid) return errRes(res, notValid);

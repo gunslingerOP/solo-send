@@ -32,8 +32,9 @@ export class EmailOffer extends BaseEntity {
 
     @Column()
     discountPrice: string;
-    purchases: any;
 
+    @Column({default:true})
+    active: boolean;
     
     @OneToMany((type)=>EmailPurchases, (emailPurchases)=>emailPurchases.offer)
     emailPurchases:EmailPurchases[]

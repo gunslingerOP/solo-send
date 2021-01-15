@@ -1,7 +1,9 @@
 import { errRes, okRes, paginate } from "../helpers/tools"
 import { Contact } from "../src/entity/contact"
 import { ContactsList } from "../src/entity/contactsList"
+import { EmailOffer } from "../src/entity/emailOffer"
 import { EmailTemplate } from "../src/entity/emailTemplate"
+import { Plan } from "../src/entity/plan"
 import { SentEmail } from "../src/entity/sentEmail"
 import { Subscription } from "../src/entity/subscription"
 
@@ -83,7 +85,7 @@ export default class DataController{
         template = await EmailTemplate.findAndCount({
             skip,
             take,
-            where:{user},
+            where:{user, active:true},
                  
         })
         if(!template) return errRes(res,`No template found`)
@@ -108,6 +110,53 @@ export default class DataController{
       
 
         return okRes(res,subscription)
+      
+      
+      }
+
+      static user=async(req, res)=>{
+        let user= req.user
+
+    
+     
+
+        return okRes(res,user)
+      
+      
+      }
+
+      static getPlans=async(req, res)=>{
+        let plans
+        let user= req.user
+
+    
+        plans = await Plan.find({
+    
+            where:{ active:true},
+                 
+        })
+        if(!plans) return errRes(res,`No plans found`)
+      
+
+        return okRes(res,{plans,user})
+      
+      
+      }
+
+      static getOffers=async(req, res)=>{
+        let offers
+        let user= req.user
+
+    
+        offers = await EmailOffer.find({
+    
+            where:{ active:true},
+                 
+        })
+        if(!offers) return errRes(res,`No offers found`)
+      
+
+        return okRes(res,{offers,user})
       
       
       }

@@ -50,8 +50,10 @@ router.delete("/template/:templateId", userAuth, UserController.deleteTemplate)
 router.get("/contacts", userAuth, DataController.getContacts)
 router.get("/lists", userAuth, DataController.getLists)
 router.get("/emails", userAuth, DataController.sentEmails)
-router.get("/emails", userAuth, DataController.sentEmails)
-router.get("/emails", userAuth, DataController.sentEmails)
+router.get("/plans", userAuth, DataController.getPlans)
+router.get("/offers", userAuth, DataController.getOffers)
+
+router.get("/user", userAuth, DataController.user)
 router.get("/template", userAuth, DataController.getTemplates)
 router.get("/subscription", userAuth, DataController.getSubscription)
 
